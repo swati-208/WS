@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Share Location</title>
+    <style>
+        body {
+            background-color: #e363f9; /* Change to any color you like */
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            color: #faf5f5; /* Optional: change text color */
+            margin: 0;
+            padding: 0;
+        }
+        h1 {
+            font-size: 100px;
+        }
+        p {
+            font-size: 50px; 
+        }
+        button {
+            font-size: 30px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <center>
+        <h1>Share Your Current Location</h1>
+        <button onclick="getLocation()"><i class="fa-solid fa-fingerprint fa-10x"></i></button>
+
+        <p id="location"></p>
+        <p id="message"></p>
+
+        <!-- Send Email Button -->
+        <button id="emailButton" style="display:none;" onclick="sendEmail()"><i class="fa-solid fa-location-dot fa-8x"></i></button>
+
+        <script>
+            // Function to get the current location
+            function getLocation() {
+                if (navigator.geolocation) {
+                    // If geolocation is available
+                    navigator.geolocation.getCurrentPosition(showPosition, showError);
+                } else {
+                    // If geolocation is not available
+                    document.getElementById("message").innerHTML = "Geolocation is not supported by this browser.";
+                }
+            }
+
+            // Callback function to display the location
+            function showPosition(position) {
+                const latitude = position.coords.latitude;
+                const longitude = position.coords.longitude;
+
+                // Display the current location in the paragraph
+                document.getElementById("location").innerHTML = "Latitude: " + latitude + "<br>Longitude: " + longitude;
+
+                // Generate the Google Maps URL with the current location
+                const mapUrl = `https://www.google.com/maps?q=${latitude},${longitude}`;
+
+                // Create a link to share the location
+                document.getElementById("message").innerHTML = `
+                    <a href="${mapUrl}" target="_blank">Click here to view my location on Google Maps</a>
+                `;
+                
+                // Display the "Send Location via Email" button
+                document.getElementById("emailButton").style.display = "inline";
+                
+                // Store the location link in a global variable for email
+                window.locationLink = mapUrl;
+            }
+
+            // Function to send location via email
+            function sendEmail() {
+                const subject = "HELP ME I AM IN DANGER";
+                const body = `HERE IS MY CURRENT LOCATION: ${window.locationLink}`;
+                
+                // Create a mailto link with subject and body pre-filled
+                window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+            }
+
+            // Error handling function
+            function showError(error) {
+                switch (error.code) {
+                    case error.PERMISSION_DENIED:
+                        document.getElementById("message").innerHTML = "User denied the request for Geolocation.";
+                        break;
+                    case error.POSITION_UNAVAILABLE:
+                        document.getElementById("message").innerHTML = "Location information is unavailable.";
+                        break;
+                    case error.TIMEOUT:
+                        document.getElementById("message").innerHTML = "The request to get user location timed out.";
+                        break;
+                    case error.UNKNOWN_ERROR:
+                        document.getElementById("message").innerHTML = "An unknown error occurred.";
+                        break;
+                }
+            }
+        </script>
+    </center>
+</body>
+</html>
